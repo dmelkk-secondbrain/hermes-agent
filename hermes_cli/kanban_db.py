@@ -4558,17 +4558,16 @@ def block_task(
       promotes it automatically once its parents finish. No human, no cron, no
       retry storm. This is Dale's "Type 2 — dependency blocked".
 
-    * ``needs_input`` / ``capability`` / ``None`` — "truly blocked" (Dale's
-      "Type 1"). Lands in ``blocked`` for a human. BUT: each time such a task
-      is re-blocked for the SAME kind after having been unblocked, the
-      unblock-loop counter (``block_recurrences``) increments. When it reaches
-      :data:`BLOCK_RECURRENCE_LIMIT`, the task is routed to ``triage`` instead
-      of ``blocked`` — breaking the cron-unblock ↔ worker-re-block loop and
-      forcing a human-in-the-loop triage decision.
+    * ``needs_input`` / ``capability`` — protected human/approval gates.
+      They always land in ``blocked``. Each same-kind re-block increments
+      ``block_recurrences`` and emits recurrence evidence, but must not route
+      the task to ``triage``: triage is eligible for automatic specification or
+      decomposition, which would silently replace an unresolved gate and task
+      envelope. An authorized controller must explicitly resolve and resume it.
 
-    * ``transient`` — treated like a generic block for routing, but a worker
-      can use it to signal "this might clear on its own"; it still participates
-      in the loop breaker so a forever-flaky task eventually escalates.
+    * ``None`` / ``transient`` — generic blocks. They retain the existing loop
+      breaker: repeated same-kind blocks route to ``triage`` at
+      :data:`BLOCK_RECURRENCE_LIMIT`.
 
     Returns True on any successful transition (to ``blocked``, ``todo``, or
     ``triage``), False when the task wasn't in a blockable state.
@@ -4649,9 +4648,12 @@ def block_task(
         same_cause = prev_kind == kind
         recurrences = prev_recurrences + 1 if same_cause else 1
 
-        if recurrences >= BLOCK_RECURRENCE_LIMIT:
-            # Loop detected — stop letting the unblocker spin this task. Route
-            # to triage for a human-in-the-loop decision instead of blocked.
+        protected_gate = kind in {"needs_input", "capability"}
+        if recurrences >= BLOCK_RECURRENCE_LIMIT and not protected_gate:
+            # Loop detected for a generic/transient block — stop letting the
+            # unblocker spin this task. Triage is intentionally NOT used for
+            # protected approval gates because auto-specification/decomposition
+            # can dispatch a replacement task without resolving that gate.
             cur = conn.execute(
                 """
                 UPDATE tasks
@@ -4741,6 +4743,18 @@ def block_task(
                 {"reason": reason, "kind": kind, "recurrences": recurrences},
                 run_id=run_id,
             )
+            if protected_gate and recurrences >= BLOCK_RECURRENCE_LIMIT:
+                _append_event(
+                    conn, task_id, "protected_block_recurrence",
+                    {
+                        "reason": reason,
+                        "kind": kind,
+                        "recurrences": recurrences,
+                        "limit": BLOCK_RECURRENCE_LIMIT,
+                        "preserved_gate": True,
+                    },
+                    run_id=run_id,
+                )
         _blocked_task = get_task(conn, task_id)
     _fire_kanban_lifecycle_hook(
         "kanban_task_blocked",

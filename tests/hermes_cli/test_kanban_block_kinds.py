@@ -7,9 +7,12 @@ forever. The fix gives ``block_task`` a typed ``kind`` and a persistent
 
 * ``dependency`` blocks route to ``todo`` (parent-gated, auto-resumed) and
   never enter the human ``blocked`` bucket a cron would keep unblocking.
-* ``needs_input`` / ``capability`` / un-typed blocks land in ``blocked``;
-  each same-cause re-block after an unblock increments ``block_recurrences``,
-  and at ``BLOCK_RECURRENCE_LIMIT`` the task routes to ``triage`` for a human.
+* ``needs_input`` / ``capability`` are protected human/approval gates: they
+  remain ``blocked`` on a repeated same-cause block, with the recurrence count
+  and a ``protected_block_recurrence`` event retained as evidence. They never
+  become automatic specifier/decomposer input.
+* Un-typed and ``transient`` blocks retain the existing loop breaker and route
+  to ``triage`` at the recurrence limit.
 * ``unblock_task`` deliberately does NOT reset ``block_recurrences`` (the
   amnesia that let the loop run unbounded).
 * A successful ``complete_task`` resets the loop memory.
@@ -22,6 +25,8 @@ from pathlib import Path
 import pytest
 
 from hermes_cli import kanban_db as kb
+from hermes_cli import kanban_decompose as decompose
+from hermes_cli import kanban_specify as specify
 
 
 @pytest.fixture
@@ -78,21 +83,58 @@ def test_unblock_does_not_reset_recurrence_counter(kanban_home: Path) -> None:
         assert t.block_kind == "needs_input"  # kind preserved for comparison
 
 
-def test_same_cause_reblock_routes_to_triage(kanban_home: Path) -> None:
-    """Dale's loop: block → unblock → re-block same kind → triage."""
+@pytest.mark.parametrize("kind", ["needs_input", "capability"])
+def test_repeated_protected_block_preserves_gate_and_task_envelope(
+    kanban_home: Path, kind: str
+) -> None:
+    """Review/approval gates cannot become auto-decomposer input on recurrence."""
     with kb.connect_closing() as conn:
-        tid = _running_task(conn)
-        kb.block_task(conn, tid, reason="need creds", kind="needs_input")
+        tid = _running_task(conn, title="review-required: retain exact envelope")
+        body = "Await independent review; do not alter this grant."
+        with kb.write_txn(conn):
+            conn.execute(
+                """UPDATE tasks
+                   SET body=?, priority=?, skills=?, model_override=?,
+                       goal_mode=?, goal_max_turns=?
+                 WHERE id=?""",
+                (body, 91, '["reviewer"]', "provider/model", 1, 7, tid),
+            )
+        before = conn.execute(
+            """SELECT title, body, assignee, priority, skills, model_override,
+                      goal_mode, goal_max_turns
+                 FROM tasks WHERE id=?""",
+            (tid,),
+        ).fetchone()
+        kb.block_task(conn, tid, reason="independent review required", kind=kind)
         kb.unblock_task(conn, tid)
         _make_running_again(conn, tid)
-        kb.block_task(conn, tid, reason="still need creds", kind="needs_input")
-        t = kb.get_task(conn, tid)
-        assert t.status == "triage"
-        assert t.block_recurrences == 2
+        kb.block_task(conn, tid, reason="review gate remains unresolved", kind=kind)
+
+        task = kb.get_task(conn, tid)
+        after = conn.execute(
+            """SELECT title, body, assignee, priority, skills, model_override,
+                      goal_mode, goal_max_turns
+                 FROM tasks WHERE id=?""",
+            (tid,),
+        ).fetchone()
+        assert task.status == "blocked"
+        assert task.block_kind == kind
+        assert task.block_recurrences == 2
+        assert tuple(before) == tuple(after)
+        assert task.title.encode() == before["title"].encode()
+        assert task.body.encode() == before["body"].encode()
+        # These are the selectors used before either auxiliary worker is called.
+        assert tid not in decompose.list_triage_ids()
+        assert tid not in specify.list_triage_ids()
+        events = [e for e in kb.list_events(conn, tid)
+                  if e.kind == "protected_block_recurrence"]
+        assert len(events) == 1
+        assert events[0].payload["recurrences"] == 2
+        assert events[0].payload["preserved_gate"] is True
 
 
-def test_untyped_block_loop_also_protected(kanban_home: Path) -> None:
-    """Legacy un-typed blocks (kind=None) still trip the breaker."""
+def test_untyped_block_loop_still_routes_to_triage(kanban_home: Path) -> None:
+    """Nonprotected legacy blocks retain the existing loop-breaker behavior."""
     with kb.connect_closing() as conn:
         tid = _running_task(conn)
         kb.block_task(conn, tid, reason="a")
@@ -115,7 +157,7 @@ def test_different_kinds_do_not_compound(kanban_home: Path) -> None:
         assert t.block_recurrences == 1
 
 
-def test_block_loop_detected_event_emitted(kanban_home: Path) -> None:
+def test_protected_block_recurrence_event_emitted(kanban_home: Path) -> None:
     with kb.connect_closing() as conn:
         tid = _running_task(conn)
         kb.block_task(conn, tid, reason="x", kind="capability")
@@ -123,11 +165,12 @@ def test_block_loop_detected_event_emitted(kanban_home: Path) -> None:
         _make_running_again(conn, tid)
         kb.block_task(conn, tid, reason="x", kind="capability")
         events = [e for e in kb.list_events(conn, tid)
-                  if e.kind == "block_loop_detected"]
-        assert events, "expected a block_loop_detected event"
+                  if e.kind == "protected_block_recurrence"]
+        assert events, "expected protected recurrence evidence"
         payload = events[-1].payload or {}
         assert payload.get("recurrences") == 2
         assert payload.get("kind") == "capability"
+        assert payload.get("preserved_gate") is True
 
 
 # ---------------------------------------------------------------------------
