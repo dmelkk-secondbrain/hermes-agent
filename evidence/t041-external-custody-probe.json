@@ -1,0 +1,785 @@
+{
+  "command_timeout_seconds": 5,
+  "elapsed_seconds": 120.0,
+  "ended_utc": "2026-09-15T16:54:19.348137Z",
+  "gateway": {
+    "argv": [
+      "systemctl",
+      "show",
+      "hermes.service",
+      "--property=MainPID",
+      "--property=ActiveState",
+      "--property=SubState",
+      "--property=ControlGroup",
+      "--no-pager"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service\nActiveState=active\nSubState=running"
+  },
+  "interval_seconds": 5,
+  "mode": "read-only-observe",
+  "pass": true,
+  "probe": {
+    "cgroup": {
+      "pid": 1062226,
+      "read": {
+        "argv": [
+          "cat",
+          "/proc/1062226/cgroup"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+    },
+    "pgid": 1062224,
+    "pid": 1062226,
+    "ppid": 1062224,
+    "sid": 1062224
+  },
+  "samples": [
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:19.376344Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:24.386170Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:29.396205Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:34.405225Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:39.414130Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:44.422982Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:49.432226Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:54.441390Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:52:59.450687Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:04.459933Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:09.469028Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:14.477999Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:19.486881Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:24.496616Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:29.506929Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:34.516049Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:39.525123Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:44.534215Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:49.542963Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:54.552122Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:53:59.560591Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:54:04.569285Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:54:09.579816Z"
+    },
+    {
+      "gateway": {
+        "argv": [
+          "systemctl",
+          "show",
+          "hermes.service",
+          "--property=MainPID",
+          "--property=ControlGroup",
+          "--no-pager"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "stdout": "MainPID=901486\nControlGroup=/system.slice/hermes.service"
+      },
+      "probe": {
+        "pid": 1062226,
+        "read": {
+          "argv": [
+            "cat",
+            "/proc/1062226/cgroup"
+          ],
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0::/user.slice/user-1000.slice/session-12158.scope"
+        },
+        "value": "0::/user.slice/user-1000.slice/session-12158.scope"
+      },
+      "utc": "2026-09-15T16:54:14.589072Z"
+    }
+  ],
+  "source_import": {
+    "candidate": "55348647298cade110eeeefae48cc0d462dc1298",
+    "candidate_check": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/brain/.hermes/hermes-agent",
+        "cat-file",
+        "-e",
+        "55348647298cade110eeeefae48cc0d462dc1298^{commit}"
+      ],
+      "exit": 128,
+      "stderr": "fatal: Not a valid object name 55348647298cade110eeeefae48cc0d462dc1298^{commit}",
+      "stdout": ""
+    },
+    "candidate_present_in_source_db": false,
+    "head": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/brain/.hermes/hermes-agent",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "766374ab4f90de2c28ea7ac79418da1c473a8f63"
+    },
+    "source": "/home/brain/.hermes/hermes-agent",
+    "tree": {
+      "argv": [
+        "git",
+        "-C",
+        "/home/brain/.hermes/hermes-agent",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout": "3443cae971bf07f91bfc0b8a4e35f7156eb250f0"
+    }
+  },
+  "started_utc": "2026-09-15T16:52:19.348394Z",
+  "temporary_home": "/tmp/t041-custody-home-xa9zi5gr",
+  "window_seconds": 120
+}
