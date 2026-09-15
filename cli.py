@@ -1236,19 +1236,6 @@ def _finalize_single_query(cli) -> None:
         cli._release_active_session()
 
 
-def _single_query_exit_code(result) -> int:
-    """Map a completed one-shot turn result to its automation exit status."""
-    if not (isinstance(result, dict) and result.get("failed")):
-        return 0
-    if os.environ.get("HERMES_KANBAN_TASK") and result.get("failure_reason") in ("rate_limit", "billing"):
-        try:
-            from hermes_cli.kanban_db import KANBAN_RATE_LIMIT_EXIT_CODE
-            return KANBAN_RATE_LIMIT_EXIT_CODE
-        except Exception:
-            pass
-    return 1
-
-
 def _reset_terminal_input_modes_on_exit() -> None:
     """Best-effort: disable focus reporting + mouse tracking on TUI exit so they
     don't leak into the next shell session sharing the tab.
@@ -4057,9 +4044,6 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
         # don't auto-queue another continuation on top of a user-cancelled
         # turn (which would make Ctrl+C feel like it did nothing).
         self._last_turn_interrupted = False
-        # chat() returns rendered text; one-shot Kanban workers also need the
-        # raw result to report a typed process exit status.
-        self._last_turn_result = None
         self._should_exit = False
         # /exit --delete: when True, the current session's SQLite history and
         # on-disk transcripts are deleted during shutdown. Set by
@@ -12517,7 +12501,6 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
             # Record when this agent loop finished so the status bar can show
             # idle time since the last final response.
             self._last_turn_finished_at = time.time()
-            self._last_turn_result = result
 
             # Proactively clean up async clients whose event loop is dead.
             # The agent thread may have created AsyncOpenAI clients bound
@@ -16257,9 +16240,7 @@ def main(
                                     _exit_code = _RL_CODE
                                 except Exception:
                                     _exit_code = 1
-                        # The mapping is shared with the dispatcher-spawned
-                        # non-quiet `chat -q` path below.
-                        sys.exit(_single_query_exit_code(result))
+                        sys.exit(_exit_code)
 
                 # Exit with error code if credentials or agent init fails
                 sys.exit(1)
@@ -16285,11 +16266,6 @@ def main(
                 cli._show_security_advisories()
                 cli.chat(query, images=single_query_images or None)
                 cli._print_exit_summary(clear_screen=False)
-                # The dispatcher spawns this non-quiet `chat -q` path. Keep
-                # ordinary one-shot behavior unchanged; only Kanban workers
-                # expose their completed outcome through a process exit code.
-                if os.environ.get("HERMES_KANBAN_TASK"):
-                    sys.exit(_single_query_exit_code(cli._last_turn_result))
         finally:
             _finalize_single_query(cli)
         return
