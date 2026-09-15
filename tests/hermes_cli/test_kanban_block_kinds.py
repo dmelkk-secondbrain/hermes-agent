@@ -21,6 +21,7 @@ forever. The fix gives ``block_task`` a typed ``kind`` and a persistent
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -84,53 +85,77 @@ def test_unblock_does_not_reset_recurrence_counter(kanban_home: Path) -> None:
 
 
 @pytest.mark.parametrize("kind", ["needs_input", "capability"])
-def test_repeated_protected_block_preserves_gate_and_task_envelope(
+def test_repeated_protected_block_skips_real_auxiliary_lifecycle(
     kanban_home: Path, kind: str
 ) -> None:
-    """Review/approval gates cannot become auto-decomposer input on recurrence."""
+    """A re-blocked review gate never reaches either real auxiliary entry path.
+
+    This deliberately calls the native specifier and decomposer with a mocked
+    auxiliary client. On the unfixed base the recurrence enters ``triage`` and
+    the specifier calls that client; on the fixed candidate both entries reject
+    the retained ``blocked`` task before any auxiliary call or graph mutation.
+    """
     with kb.connect_closing() as conn:
         tid = _running_task(conn, title="review-required: retain exact envelope")
         body = "Await independent review; do not alter this grant."
         with kb.write_txn(conn):
             conn.execute(
-                """UPDATE tasks
-                   SET body=?, priority=?, skills=?, model_override=?,
-                       goal_mode=?, goal_max_turns=?
-                 WHERE id=?""",
-                (body, 91, '["reviewer"]', "provider/model", 1, 7, tid),
+                """UPDATE tasks SET body=?, tenant=?, priority=?, skills=?,
+                       model_override=?, goal_mode=?, goal_max_turns=?,
+                       workspace_kind=?, workspace_path=?, max_runtime_seconds=?
+                   WHERE id=?""",
+                (body, "incident", 91, '["reviewer"]', "provider/model", 1, 7,
+                 "dir", "/tmp/review-gate", 900, tid),
             )
         before = conn.execute(
-            """SELECT title, body, assignee, priority, skills, model_override,
-                      goal_mode, goal_max_turns
-                 FROM tasks WHERE id=?""",
+            """SELECT title, body, assignee, tenant, priority, skills, model_override,
+                      goal_mode, goal_max_turns, workspace_kind, workspace_path,
+                      max_runtime_seconds FROM tasks WHERE id=?""",
             (tid,),
         ).fetchone()
         kb.block_task(conn, tid, reason="independent review required", kind=kind)
-        kb.unblock_task(conn, tid)
-        _make_running_again(conn, tid)
-        kb.block_task(conn, tid, reason="review gate remains unresolved", kind=kind)
+        assert kb.unblock_task(conn, tid)
+        assert kb.claim_task(conn, tid, claimer="worker") is not None
+        assert kb.reclaim_task(conn, tid, reason="review gate recovery")
+        assert kb.claim_task(conn, tid, claimer="worker") is not None
+        assert kb.block_task(conn, tid, reason="review gate remains unresolved", kind=kind)
 
+    client = MagicMock()
+    client.chat.completions.create.return_value.choices = [MagicMock()]
+    client.chat.completions.create.return_value.choices[0].message.content = (
+        '{"title": "unsolicited rewrite", "body": "must not be used"}'
+    )
+    with patch("agent.auxiliary_client.get_text_auxiliary_client", return_value=(client, "test-model")):
+        specify_outcome = specify.specify_task(tid, author="specifier")
+        decompose_outcome = decompose.decompose_task(tid, author="decomposer")
+
+    with kb.connect_closing() as conn:
         task = kb.get_task(conn, tid)
         after = conn.execute(
-            """SELECT title, body, assignee, priority, skills, model_override,
-                      goal_mode, goal_max_turns
-                 FROM tasks WHERE id=?""",
+            """SELECT title, body, assignee, tenant, priority, skills, model_override,
+                      goal_mode, goal_max_turns, workspace_kind, workspace_path,
+                      max_runtime_seconds FROM tasks WHERE id=?""",
             (tid,),
         ).fetchone()
-        assert task.status == "blocked"
-        assert task.block_kind == kind
-        assert task.block_recurrences == 2
-        assert tuple(before) == tuple(after)
-        assert task.title.encode() == before["title"].encode()
-        assert task.body.encode() == before["body"].encode()
-        # These are the selectors used before either auxiliary worker is called.
-        assert tid not in decompose.list_triage_ids()
-        assert tid not in specify.list_triage_ids()
+        children = [row["id"] for row in conn.execute("SELECT id FROM tasks")]
+        edges = [tuple(row) for row in conn.execute("SELECT parent_id, child_id FROM task_links")]
         events = [e for e in kb.list_events(conn, tid)
                   if e.kind == "protected_block_recurrence"]
-        assert len(events) == 1
-        assert events[0].payload["recurrences"] == 2
-        assert events[0].payload["preserved_gate"] is True
+
+    assert task.status == "blocked"
+    assert task.block_kind == kind
+    assert task.block_recurrences == 2
+    assert tuple(before) == tuple(after)
+    assert specify_outcome.ok is False and "not in triage" in specify_outcome.reason
+    assert decompose_outcome.ok is False and "not in triage" in decompose_outcome.reason
+    assert client.chat.completions.create.call_count == 0
+    assert children == [tid]  # no auxiliary fan-out child creation
+    assert edges == []  # no auxiliary dependency edge
+    assert tid not in decompose.list_triage_ids()
+    assert tid not in specify.list_triage_ids()
+    assert len(events) == 1
+    assert events[0].payload["recurrences"] == 2
+    assert events[0].payload["preserved_gate"] is True
 
 
 def test_untyped_block_loop_still_routes_to_triage(kanban_home: Path) -> None:
@@ -142,6 +167,20 @@ def test_untyped_block_loop_still_routes_to_triage(kanban_home: Path) -> None:
         _make_running_again(conn, tid)
         kb.block_task(conn, tid, reason="a again")
         assert kb.get_task(conn, tid).status == "triage"
+
+
+def test_transient_block_loop_still_routes_to_triage(kanban_home: Path) -> None:
+    """Explicit transient recurrences retain the generic loop breaker."""
+    with kb.connect_closing() as conn:
+        tid = _running_task(conn)
+        kb.block_task(conn, tid, reason="temporary outage", kind="transient")
+        kb.unblock_task(conn, tid)
+        _make_running_again(conn, tid)
+        kb.block_task(conn, tid, reason="temporary outage persists", kind="transient")
+        task = kb.get_task(conn, tid)
+        assert task.status == "triage"
+        assert task.block_kind == "transient"
+        assert task.block_recurrences == 2
 
 
 def test_different_kinds_do_not_compound(kanban_home: Path) -> None:
